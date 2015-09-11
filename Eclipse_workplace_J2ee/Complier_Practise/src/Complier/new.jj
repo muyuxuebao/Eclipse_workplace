@@ -1,0 +1,664 @@
+//--------------------------------------全组代码如下，其中组员吴地吉，雷轲成果都在相应位置做了标注
+//---其中吴地吉主要任务为for语句的语法语义分析。雷轲主要任务是switch语句的语法语义分析。
+
+
+//----未标注部分（即剩下内容）为组长宣旭峰的成果，主要任务包括:
+//-------任务分配，搭建整体框架,ifelse,while,赋值声明语句的语法语义分析，和所有代码的调试任务-----
+ 
+options {
+  JDK_VERSION = "1.5";
+  LOOKAHEAD=2;//向前看2个字母,消除歧义用的
+  DEBUG_PARSER = true;//以debug形式生成,便于调试
+}
+
+PARSER_BEGIN(whileParse)
+package Complier;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.*;
+import java.io.FileNotFoundException;
+
+public class whileParse {
+	public static int count=0; /*四元式标号*/
+	
+	 public static int ncount=0; /*临时变量下标*/
+	 
+     public static List<struct> aList = new ArrayList<struct>();//----------存放四元式
+     
+     //---------------四元式对象------------------
+     public static class struct{
+     	int num;
+     	String operate;
+     	String obj1;
+     	String obj2;
+     	String situ;
+     	
+     	public struct(int _num,String _operate,String _obj1,String _obj2,String _situ){
+     		num=_num;
+     		operate=_operate;
+     		obj1=_obj1;
+     		obj2=_obj2;
+     		situ=_situ;
+     		
+     	}
+     	
+     	public String toString(){
+     		return "("+num+")"+" "+"("+operate+","+" "+obj1+", "+obj2+", "+situ+")";
+     	}
+     }
+     
+  public static void main(String args[]) throws ParseException,IOException{
+  
+    FileInputStream fileStream=null;
+    BufferedWriter bw=null;
+    String str;
+    
+    //----------从test.txt文件读取测试样例-------------------
+		  fileStream = new FileInputStream("test.txt");
+		  whileParse parser = new whileParse(fileStream);
+		 
+         try {
+           switch (parser.start()) {
+           case 0:
+              System.out.println("OK.");
+              break;
+           case 1:
+               System.out.println("Goodbye.");
+            break;
+              default:
+          break;
+        }
+      
+      
+      } catch (Exception e) {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        parser.ReInit(System.in);
+      } catch (Error e) {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+    
+      }
+	
+	//----------------------向输出文件output.txt写入测试样例运行结果--------------
+     bw=new BufferedWriter(new FileWriter(new File("output.txt")));
+     
+     //-------------遍历aList，从中读出所有四元式对象，并将结果输出到output.txt
+	 for(int i=0;i<aList.size();i++){
+       
+       	str=((struct)aList.get(i)).toString();
+       
+       	bw.write(str,0,str.length());
+       	bw.newLine();
+       
+	 }
+	 //-------------关闭输入输出流--------------------------------------------------
+       bw.close();
+      fileStream.close();
+  }
+}
+
+PARSER_END(whileParse)
+
+//-----------------------------------词法分析--------------------------------------------------------
+SKIP :
+{
+ 	" "
+|	"\r"
+|	"\t"
+|	"\n"
+|   "\r\n"
+| <"/*"(~["*"])*"*"(~["/"](~["*"])*"*")*"/">//注释
+}
+
+//---------------------------------关系运算符----------------------------
+TOKEN:
+{
+  	
+   <GT:">">
+  | <LT:"<">
+  | <EQ:"==">
+  | <EQUAL:"=">
+  | <LE:"<=">
+  | <GE:">=">
+  | <NE:"!=">
+  | <ADD:"++">
+  | <MINUSD:"--">
+  | <REM:"%">
+  | <AND:"&&">
+  | <OR:"||">
+  |<FEN:";">
+  |<DOU:",">
+  |<DYH:"'">
+  |<MAO:":">
+}
+
+//------------------------类型-------------------------------
+TOKEN:
+{
+<CHAR:"char">
+| <INT:"int">
+|<FLOAT:"float">
+|<DOUBLE:"double">
+| <VOID:"void">
+}
+
+//----------------------运算符------------------------------
+TOKEN : 
+{
+	< PLUS: "+" >
+|	< MINUS: "-" >
+|	< MULTIPLY: "*" >
+|	< DIVIDE: "/" >
+}
+TOKEN :
+{
+	
+    < CONSTANT: ( <DIGIT> )+ >
+|   < #DIGIT: ["0" - "9"] >
+}
+
+//----------------------关键字-----------------------------
+TOKEN:
+{
+  <BREAK:"break">
+  | <CASE:"case">
+  | <_DEFAULT:"default">
+  | <DO:"do">
+  | <ELSE:"else">
+  | <FOR:"for">
+  | <IF:"if">
+  | <RETURN:"return">
+  | <SWITCH:"switch">
+  | <WHILE:"while">
+  | <MAIN:"main">
+
+}
+TOKEN:
+{
+  <LC:"(">
+  | <RC:")">
+  | <LM:"[">
+  | <RM:"]">
+  | <LB:"{">
+  | <RB:"}">
+}
+
+//----------------------------定义标识符----------------
+TOKEN:
+{
+  <ID:<LETTER>(<LETTER>| <DIGIT>)*>
+  | <#LETTER:["a"-"z", "A"-"Z", "_"]>
+}
+
+//---------------------------开始函数-------------------------------------------
+int start():{}{
+  <VOID><MAIN> <LC><RC><LB>block()<RB><EOF>{
+    return 0;
+  }
+  | <EOF>{
+    return 1;
+  }
+}
+
+//--------------main()中的语句块------------------
+int block():{}{
+  //语句块
+statementstring(){
+	return 0;
+}
+| <EOF>{
+	return 1;
+}
+}
+
+//---------语句串----------
+void statementstring():{}{
+  
+statement()isstatement()
+
+}
+void isstatement():{}{
+ 
+(statementstring())?
+}
+
+//-------------各种控制语句---------------
+void statement():{}{
+
+ IfStatement()
+ |DeclareStatement()
+ |ForStatement()
+ |WhileStatement()
+ |Switch_statement()
+}
+
+//-----------------声明和赋值语句--------------------------
+void DeclareStatement():{}{
+((<INT>|<CHAR>|<FLOAT>|<DOUBLE>)(<ID><DOU>)*(<ID>)<FEN>)*
+state()(state())*
+}
+
+void state() :{}
+{
+	idstate()
+}
+
+void idstate():
+{
+	String temp;
+	String id;
+	String temp1;
+}
+{
+
+	id=<ID>.image(
+	<ADD>
+	{
+		count++;
+		aList.add(new struct(count,"+",id,"1",id));
+		
+	}
+	|<MINUSD>
+		{
+		count++;
+		aList.add(new struct(count,"-",id,"1",id));
+		
+	}
+	|<EQUAL>temp=Expression()
+	{
+		count++;
+		
+		aList.add(new struct(count,"=",temp,"_",id));
+	 
+	}
+	
+	)<FEN>
+}
+
+
+//---------------------------------if语句-------------------------------
+void IfStatement():
+{
+	int j,j1;
+}{
+  <IF><LC>Condition()<RC>
+  {
+  	count++;
+  	j=count;
+  	aList.add(new struct(count,"J","_","_","#"));
+  	
+  }
+  <LB>isstatement()<RB>
+  {
+  	count++;
+  	j1=count;
+  	aList.add(new struct(count,"J","_","_","#"));
+  	
+  }
+  (
+ 	 <ELSE>(statement()|(<LB>isstatement()<RB>))
+ 	 {
+ 	 	 aList.set(j1-1,new struct(j1,"J","_","_",""+(count+1)));
+  	     aList.set(j-1,new struct(j,"J","_","_",""+(j1+1)));
+ 	 }
+  )?
+ 
+}
+
+//----------------while语句--------------------
+void WhileStatement():
+{
+  Token node;
+  int j1;
+  int j2;
+  int next;
+  int next1;
+}
+{
+  <WHILE><LC>
+  {
+  	next1=count+1;
+  }
+  Condition()<RC>
+  {
+  	count++;
+  	j1=count;
+  	aList.add(new struct(count,"J","_","_","#"));
+  	
+  }  
+  (statement()|(<LB>isstatement()<RB>))
+  {
+        count++;
+        aList.add(new struct(count,"J","_","_",""+next1));
+        
+       aList.set(j1-1,new struct(j1,"J","_","_",""+(count+1)));
+  		
+  }
+}
+
+//------------条件--------------------
+int Condition():
+{
+  Token node;
+  int next;
+  String result;
+  String middle;
+}
+{
+  result=Expression()(node=<LT> middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J<",result,middle,""+(next+1)));
+  	
+  }
+  | node=<GT> middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J>",result,middle,""+(next+1)));
+  	
+  }
+  | node=<GE> middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J>=",result,middle,""+(next+1)));
+  	
+  }
+  | node=<LE> middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J<=",result,middle,""+(next+1)));
+
+  }) 
+   {
+  	return next;
+  }
+}
+
+//--------------------------以下这部分为组员吴地吉的成果（for)----------------------
+//----for语句-------
+void ForStatement():{  
+  Token node;
+  int j1;
+  int j2;
+  int next;
+  int next1;}
+{
+	<FOR>"("
+	{
+  		next1=count+2;
+  	}	
+	(ForFirst())?";"	
+	
+	(ForSecond())?";" 
+	{
+	  	count++;
+	  	j1=count;
+	  	aList.add(new struct(count,"J","_","_","#"));
+	  
+  	}  
+
+	(ForThird())?
+	")" 
+	<LB>isstatement()<RB>
+	{
+        count++;
+        aList.add(new struct(count,"J","_","_",""+next1));
+         aList.set(j1-1,new struct(j1,"J","_","_",""+(count+1)));
+  		
+  	}
+	
+}
+void ForFirst():{	
+	Token node;
+	String temp="";
+	String temp1="";}
+{
+	(<INT>|<CHAR>|<FLOAT>|<DOUBLE>)? temp=<ID>.image("="temp1=Expression())?
+	{
+  		count++;
+  		aList.add(new struct(count,"=",temp1,"_",temp));
+  		
+  	}
+	
+}
+int ForSecond():
+{
+
+  Token node;
+  int next;
+  String result;
+  String middle;
+}
+{
+  result=Expression()
+  (
+  node="<" middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J<",result,middle,""+(next+1)));
+  
+  }
+  | node=">" middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J>",result,middle,""+(next+1)));
+  
+  }
+  | node=">=" middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J>=",result,middle,""+(next+1)));
+  
+  }
+  | node="<=" middle=Expression()
+  {
+  	count++;
+  	next=count+1;
+  	aList.add(new struct(count,"J<=",result,middle,""+(next+1)));
+  
+  }) 
+   {
+  	return next;
+  }
+}
+void ForThird():
+{
+	Token node;
+	String temp="";
+	String temp1="";
+}
+{
+	temp=<ID>.image(
+	<ADD>
+	{
+		count++;
+		aList.add(new struct(count,"+",temp,"1",temp));
+	
+	}
+	|<MINUSD>
+		{
+		count++;
+		aList.add(new struct(count,"-",temp,"1",temp));
+		
+	}
+	|"="temp1=Expression()
+	{
+  		count++;
+  		aList.add(new struct(count,"=",temp1,"_",temp));
+  		
+  	})
+	
+}
+//-------------------------------吴地吉成果到此结束--------------------------------
+
+//   -------表达式，其中加减法应建立在乘除层次之上，从语法树上分析，乘除层次更深------------
+String Expression():
+{
+	String result;
+	String middle;
+	String temp;
+}
+{
+	result=Term()
+	{
+		temp = result;
+	}
+	(<PLUS>middle=Term()
+	{
+		count++;
+		temp="T"+ncount;
+		ncount++;
+		aList.add(new struct(count,"+",result,middle,temp));
+		
+		result=temp;
+	}
+	|<MINUS>middle=Term()
+	{
+		count++;
+		temp="T"+ncount;
+		ncount++;
+		aList.add(new struct(count,"-",result,middle,temp));
+		
+		result=temp;
+	})*
+	{return result;}
+}
+
+//----------乘法表达式，位于语法树更深层次-----------
+String Term() : 
+{
+  Token node;
+  String result;
+  String middle;
+  String temp="";
+}
+{
+  result=unary() 
+  {
+  	temp=result;
+  }
+  (
+    ( <MULTIPLY> middle= unary()
+      {
+    	count++;
+  	    temp="T"+ncount;
+  	    ncount++;
+  	    aList.add(new struct(count,"*",result,middle,temp));
+  	  
+  	   result=temp;
+  	  	
+      }    
+      
+     | <DIVIDE> middle=unary()
+      {
+     	count++;
+  	    temp="T"+ncount;
+  	    ncount++;
+  	    aList.add(new struct(count,"/",result,middle,temp));
+  	  
+  	   result=temp; 	   
+      }
+     ) 
+  )*
+    {
+  	return temp;
+  }
+}
+String unary() : 
+{
+	String str;
+}
+{
+ str= element(){return str;}
+}
+
+//--------运算的基本操作对象。可以是常量，可以是表达式，也可以是表示符---------
+String element() : 
+{
+	String str;
+	Token node;
+	String L_place;
+	String L_offset;
+	String variable;
+	String temp;
+}
+{
+  node=<CONSTANT>{return node.image;}
+| <LC> str=Expression()<RC>{return str;}
+|variable= <ID>.image{return variable;}
+
+
+}
+
+//--------------------------------以下为组员雷轲的成果-----------------------------------------------------------------------------
+//-----switch语句--------
+void Switch_statement():
+{
+  struct b=new struct(0,"","","","");
+ 
+  int j1;
+  int j2;
+  int j3=0;
+  int j4;
+}
+{
+
+	<SWITCH>
+	{j4=count+1;}
+	<LC> 
+	Expression()
+	<RC> 
+	<LB> (<CASE>
+	
+	 Expression()
+	{
+		count++;
+		aList.add(new struct(count,"JT","_","_",""+(count+2)));
+		count++;
+		j1=count;
+		 aList.add(new struct(count,"J","_","_","#"));
+  	}
+	":"statement()
+	{
+		count++;
+		j2=count;
+		 aList.add(new struct(count,"J","_","_","#"));
+  		
+	}
+	<BREAK>";"{
+		aList.set(j1-1,new struct(j1,"J","_","_",""+(count+1)));
+	 
+	}
+	 )+ <_DEFAULT>
+	 
+	 ":"statement()<BREAK>
+	 {
+	 	count++;
+	 	j3=count;
+  		 aList.add(new struct(count,"J","_","_","#"));
+	 }{
+	 	 
+	 	   aList.set(j3-1,new struct(j3,"J","_","_",""+(count+1)));
+	 	 
+	 	  for(int i=j4;i<aList.size();i++)
+	 	   {
+	 	   	  b=aList.get(i);
+	 	   	  if(b.situ=="#")
+	 	   	  {
+	 	   	  	aList.set(i,new struct(i,"J","_","_",""+(count+1)));
+	 	   	  }
+	 	   }
+	 }
+	 ";"
+	 <RB>
+   }
+//--------------------------------雷轲成果到此结束----------------------------------------------------------------------------
+

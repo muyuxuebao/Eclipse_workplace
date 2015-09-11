@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<addressbook>
+	<person sex="male"> 
+		<name>齐天大圣孙悟空</name> 
+		<email>齐天大圣孙悟空@花果山水帘洞.傲来国</email>
+	</person>
+	<person sex="male"> 
+		<name>于天恩</name> 
+		<email>于天恩@天人居.东胜神洲</email>
+	</person>
+</addressbook> 

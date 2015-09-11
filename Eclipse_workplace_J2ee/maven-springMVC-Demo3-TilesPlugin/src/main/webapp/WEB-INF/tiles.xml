@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+	<definition name="base.definition" template="/view/layout.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header" value="/view/header.jsp" />
+		<put-attribute name="menu" value="/view/menu.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/view/footer.jsp" />
+	</definition>
+	<definition name="contact" extends="base.definition">
+		<put-attribute name="title" value="Contact Manager" />
+		<put-attribute name="body" value="/view/contact.jsp" />
+	</definition>
+</tiles-definitions> 

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<package name="Welcome" extends="struts-default">
+		<action name="Welcome" class="com.yinliang.ects.struts.action.WelcomeAction"
+			method="add">
+			<result name="succeed">/book_store/index.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+	</package>
+
+
+
+
+
+
+
+
+
+	<package name="user" extends="struts-default">
+		<action name="LoginServlet" class="com.yinliang.ects.struts.action.UserAction"
+			method="login">
+			<result name="succeed">/book_store/succeed.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+		<action name="LogoutServlet" class="com.yinliang.ects.struts.action.UserAction"
+			method="logout">
+			<result name="succeed">/book_store/succeed.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+		<action name="SaveUserServlet" class="com.yinliang.ects.struts.action.UserAction"
+			method="register">
+			<result name="succeed">/book_store/succeed.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+		<action name="AlterUserServlet" class="com.yinliang.ects.struts.action.UserAction"
+			method="alter">
+			<result name="succeed">/book_store/succeed.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+
+	</package>
+
+
+
+
+
+
+
+
+	<package name="product" extends="struts-default">
+		<action name="FildAllProductServlet" class="com.yinliang.ects.struts.action.ProductAction"
+			method="FindAll">
+			<result name="succeed">/book_store/category.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+		<action name="FindProductDetails" class="com.yinliang.ects.struts.action.ProductAction"
+			method="FindProductDetails">
+			<result name="succeed">/book_store/details.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+
+	</package>
+
+
+	<package name="cart" extends="struts-default">
+		<action name="addToCartServlet" class="com.yinliang.ects.struts.action.CartAction"
+			method="add">
+			<result name="succeed">/book_store/succeed.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+
+		<action name="DeleteCartItems" class="com.yinliang.ects.struts.action.CartAction"
+			method="deleteItems">
+			<result name="succeed">/book_store/cart.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+
+	</package>
+	
+	<package name="order" extends="struts-default">
+	
+		<action name="AddOrderServlet" class="com.yinliang.ects.struts.action.OrderAction"
+			method="add">
+			<result name="succeed">/book_store/order.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+		<action name="FindOrderDetails" class="com.yinliang.ects.struts.action.OrderAction"
+			method="FindOrderDetails">
+			<result name="succeed">/book_store/orderDetails.jsp</result>
+			<result name="failed">/book_store/failed.jsp</result>
+		</action>
+		
+		
+	</package>
+</struts>    

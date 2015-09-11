@@ -1,0 +1,24 @@
+void main(){
+int d,c,e,f,k;
+d=0;c=1;e=2;f=3;
+k=5;
+while(k>=0){
+if(c<e){
+d=d+1;
+while(f>=0){
+ f--;
+}
+}
+else{
+if(e<f){
+e++;
+}
+else{
+d++;
+}
+f=f+3;
+e=e+3;
+}
+k--;
+}
+}

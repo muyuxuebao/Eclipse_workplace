@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">userManagement</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="please_input_user_name">请输入用户名</string>
+    <string name="please_input_password">请输入密码</string>
+    <string name="save_password">保存密码</string>
+    <string name="bt_submit">提交</string>
+    <string name="bt_register">注册</string>
+    <string name="mode_private">私有</string>
+    <string name="mode_readable">可读</string>
+    <string name="mode_writeable">可写</string>
+    <string name="mode_public">公开</string>
+    <string name="bt_view_permission">查看存储用户信息的文件的权限</string>
+    <string name="bt_get_administrator_permission">获得管理员权限</string>
+    <string name="bt_show_sd_card_size">显示SD卡存储状态</string>
+    <string name="bt_show_TF_card_size">显示手机内存卡存储状态</string>
+
+</resources>
